@@ -1,0 +1,174 @@
+/* =====================================
+   1. 기본 설정
+===================================== */
+
+/* 브라우저 기본 여백 제거 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 화면 전체 사용 */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+
+/* =====================================
+   2. 첫 화면 영역
+===================================== */
+
+/* 이미지를 화면 전체에 표시하는 부모 */
+.start-screen {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+
+/* =====================================
+   3. 시작 이미지
+===================================== */
+
+/* start1 이미지를 화면에 꽉 차게 표시 */
+.start-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+
+/* =====================================
+   4. 클릭 후 나타나는 문구
+===================================== */
+
+/* 처음에는 문구를 투명하게 숨김 */
+.click-message {
+    position: absolute;
+
+    /* 그림 속 스케치 인물 오른쪽 위쪽에 배치 */
+    top: 32%;
+    right: 12.0923vw;
+
+    font-family: "Noto Sans", "Noto Sans KR", sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: #000000;
+
+    opacity: 0;
+    visibility: hidden;
+
+    /* 투명도가 0.3초 동안 자연스럽게 변함 */
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* 화면을 클릭하면 문구 표시 */
+.click-message.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* =====================================
+   5. 작은 화면 대응
+===================================== */
+
+@media (max-width: 768px) {
+    .click-message {
+        top: 25%;
+        right: 5%;
+        font-size: 20px;
+    }
+}
+
+
+/* =====================================
+   6. 클릭 후 시간 순서 연출
+   (클릭 시점 = 0초)
+   0초   : 첫 번째 문구 등장
+   3초   : 첫 번째 문구 → 두 번째 문구 (같은 자리)
+   6초   : 두 번째 문구 → 세 번째 문구 (중앙, 4배 크기)
+   9초   : 문구 + start1 화면 0.3초 페이드 아웃
+   9.8초 : start2 배경 0.3초 페이드 인
+===================================== */
+
+/* 첫 번째 문구: 3초 뒤 0.3초 동안 사라짐 */
+.click-message.is-visible {
+    animation: messageOut 0.3s ease 3s forwards;
+}
+
+/* 두 번째 문구: 같은 위치/폰트/크기, 3초 뒤 나타나서 3초간 유지 */
+.start-screen:has(.click-message.is-visible) .click-message--second {
+    animation: messageInOut 3.3s ease 3s forwards;
+}
+
+/* 세 번째 문구: 화면 중앙, 4배 크기, 흰색 2px 외곽선 */
+.click-message--center {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+
+    font-size: 80px;
+    text-align: center;
+    white-space: normal;
+    max-width: 90vw;
+
+    /* 글자 바깥쪽으로 보이는 흰색 외곽선 2px (두께 4px 중 안쪽 절반은 글자에 가려짐) */
+    -webkit-text-stroke: 4px #ffffff;
+    paint-order: stroke fill;
+}
+
+.start-screen:has(.click-message.is-visible) .click-message--center {
+    animation: messageInOut 3.3s ease 6s forwards;
+}
+
+/* 9초에 start1 화면이 0.3초 동안 사라짐 */
+.start-screen:has(.click-message.is-visible) .start-image {
+    animation: messageOut 0.3s ease 9s forwards;
+}
+
+/* start2 배경: 화면 전체를 채우고(위아래 일부 잘림), 9.8초에 0.3초 동안 나타남 */
+.start-screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("../images/start2.png") center / cover no-repeat;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.start-screen:has(.click-message.is-visible)::after {
+    animation: fadeIn 0.3s ease 9.8s forwards;
+}
+
+/* 애니메이션 정의 */
+@keyframes messageOut {
+    from { opacity: 1; visibility: visible; }
+    to   { opacity: 0; visibility: hidden; }
+}
+
+/* 0.3초 페이드 인 → 3초 유지 → 0.3초 페이드 아웃 */
+@keyframes messageInOut {
+    0%        { opacity: 0; visibility: visible; }
+    9.0909%   { opacity: 1; visibility: visible; }
+    90.9091%  { opacity: 1; visibility: visible; }
+    100%      { opacity: 0; visibility: hidden; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
